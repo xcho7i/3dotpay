@@ -1,0 +1,39 @@
+{
+  "name": "3dotpay",
+  "version": "0.1.0",
+  "private": true,
+  "description": "3DotPay MVP — crypto-to-local-QR payment app (monorepo root)",
+  "workspaces": [
+    "app",
+    "backend",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev:api": "npm run dev -w @3dotpay/api",
+    "dev:app": "npm run start -w app",
+    "start:api": "npm run start -w @3dotpay/api",
+    "test": "npm run test -w @3dotpay/api",
+    "typecheck": "npm run typecheck -w @3dotpay/shared && npm run typecheck -w @3dotpay/api && npm run typecheck -w app",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
+  },
+  "overrides": {
+    "react": "19.2.3"
+  },
+  "dependencies": {
+    "react": "19.2.3"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.18.0",
+    "@types/node": "^22.10.5",
+    "eslint": "^9.18.0",
+    "eslint-config-prettier": "^9.1.0",
+    "prettier": "^3.4.2",
+    "typescript": "~6.0.3",
+    "typescript-eslint": "^8.20.0"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
