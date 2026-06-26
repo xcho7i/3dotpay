@@ -4,6 +4,7 @@ import { createApp } from './app.js';
 import { env } from './config/env.js';
 import { connectDatabase, disconnectDatabase } from './lib/db.js';
 import { logger } from './lib/logger.js';
+import { startChainMonitor, stopChainMonitor } from './modules/transaction/monitor.worker.js';
 
 /**
  * Process entry point. Connects to MongoDB (fail fast on error), then starts
@@ -24,8 +25,12 @@ async function main(): Promise<void> {
     logger.info('Health: GET /health and GET /api/v1/health');
   });
 
+  // Background confirmation monitor (advances SUBMITTED transactions).
+  startChainMonitor();
+
   const shutdown = (signal: string) => {
     logger.info(`Received ${signal}, shutting down...`);
+    stopChainMonitor();
     server.close(() => {
       void disconnectDatabase().finally(() => process.exit(0));
     });

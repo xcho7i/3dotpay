@@ -10,6 +10,7 @@ import {
   EvmAddressSchema,
   FiatCurrencySchema,
   QuoteStatusSchema,
+  TransactionStatusSchema,
   TxHashSchema,
 } from '../primitives.js';
 
@@ -89,16 +90,34 @@ export const CreatePaymentRequestSchema = z.object({
   txHash: TxHashSchema,
   walletAddress: EvmAddressSchema.optional(),
 });
-export const PaymentResponseSchema = TransactionSchema;
+/** Lightweight response: the created transaction id + its status. */
+export const PaymentResponseSchema = z.object({
+  transactionId: z.string(),
+  status: TransactionStatusSchema,
+});
 
-/** GET /transactions */
+/** GET /transactions — cursor pagination. */
+export const TransactionsQuerySchema = z.object({
+  limit: z.coerce.number().int().min(1).max(100).optional(),
+  cursor: z.string().optional(),
+});
 export const TransactionsListResponseSchema = z.object({
   transactions: z.array(TransactionSchema),
+  /** Pass as `?cursor=` to fetch the next page; absent when no more. */
+  nextCursor: z.string().optional(),
 });
 
 /** GET /transactions/:id */
 export const TransactionParamsSchema = z.object({ id: z.string() });
 export const TransactionResponseSchema = TransactionSchema;
+
+/** GET /transactions/:id/status — lightweight polling response. */
+export const TransactionStatusResponseSchema = z.object({
+  id: z.string(),
+  status: TransactionStatusSchema,
+  txHash: TxHashSchema.optional(),
+  failureReason: z.string().optional(),
+});
 
 export type HealthResponse = z.infer<typeof HealthResponseSchema>;
 export type UserProfileResponse = z.infer<typeof UserProfileResponseSchema>;
@@ -112,6 +131,8 @@ export type CreateQuoteRequest = z.infer<typeof CreateQuoteRequestSchema>;
 export type QuoteResponse = z.infer<typeof QuoteResponseSchema>;
 export type CreatePaymentRequest = z.infer<typeof CreatePaymentRequestSchema>;
 export type PaymentResponse = z.infer<typeof PaymentResponseSchema>;
+export type TransactionsQuery = z.infer<typeof TransactionsQuerySchema>;
 export type TransactionsListResponse = z.infer<typeof TransactionsListResponseSchema>;
 export type TransactionParams = z.infer<typeof TransactionParamsSchema>;
 export type TransactionResponse = z.infer<typeof TransactionResponseSchema>;
+export type TransactionStatusResponse = z.infer<typeof TransactionStatusResponseSchema>;

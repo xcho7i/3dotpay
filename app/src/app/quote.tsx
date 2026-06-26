@@ -7,6 +7,7 @@ import { Card } from '../components/Card';
 import { Header } from '../components/Header';
 import { Screen } from '../components/Screen';
 import { ErrorState, LoadingState } from '../components/StateView';
+import { usePayQuote } from '../features/payment/usePayQuote';
 import { useQuote } from '../features/quote/useQuote';
 import { formatUsdc, shortenAddress } from '../lib/format';
 import { colors, spacing } from '../lib/theme';
@@ -43,6 +44,8 @@ export default function QuoteScreen() {
     merchantAmount: confirmedAmount,
     rawQrPayload: params.rawPayload,
   });
+
+  const payment = usePayQuote();
 
   // Countdown derived from the quote's expiry.
   const [secondsLeft, setSecondsLeft] = useState<number | null>(null);
@@ -144,13 +147,32 @@ export default function QuoteScreen() {
             </Text>
           </View>
 
+          {payment.error ? <Text style={styles.error}>{payment.error}</Text> : null}
+
           <View style={styles.actions}>
             {expired ? (
               <Button title="Get a new quote" onPress={refresh} />
             ) : (
-              <Button title="Pay now" onPress={() => router.replace('/processing')} disabled={expired} />
+              <Button
+                title={
+                  payment.phase === 'signing'
+                    ? 'Confirm in your wallet…'
+                    : payment.phase === 'submitting'
+                      ? 'Submitting…'
+                      : 'Pay now'
+                }
+                onPress={() =>
+                  void payment.pay({
+                    quoteId: state.quote.quoteId,
+                    settlementAddress: state.quote.settlementAddress,
+                    amountUSDC: state.quote.amountUSDC,
+                  })
+                }
+                disabled={expired || payment.isBusy}
+                loading={payment.isBusy}
+              />
             )}
-            <Button title="Cancel" variant="ghost" onPress={() => router.back()} />
+            <Button title="Cancel" variant="ghost" onPress={() => router.back()} disabled={payment.isBusy} />
           </View>
         </>
       )}

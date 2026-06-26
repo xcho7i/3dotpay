@@ -26,6 +26,19 @@ export class NotFoundError extends AppError {
   }
 }
 
+export class ForbiddenError extends AppError {
+  constructor(message = 'Forbidden') {
+    super(403, 'FORBIDDEN', message);
+  }
+}
+
+/** 409 with a caller-supplied code (e.g. QUOTE_EXPIRED, QUOTE_NOT_ACTIVE). */
+export class ConflictError extends AppError {
+  constructor(code: string, message: string) {
+    super(409, code, message);
+  }
+}
+
 export class NotImplementedError extends AppError {
   constructor(what: string) {
     super(501, 'NOT_IMPLEMENTED', `${what} is not implemented yet`);

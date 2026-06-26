@@ -111,6 +111,22 @@ export function createQuote(token: string, input: CreateQuoteInput): Promise<Quo
   });
 }
 
+export interface PaymentResult {
+  transactionId: string;
+  status: string;
+}
+
+/** POST /api/v1/payment — record a submitted USDC payment (quoteId + txHash). */
+export function submitPayment(
+  token: string,
+  input: { quoteId: string; txHash: string; walletAddress?: string },
+): Promise<PaymentResult> {
+  return request<PaymentResult>('/api/v1/payment', token, {
+    method: 'POST',
+    body: JSON.stringify(input),
+  });
+}
+
 export interface DecodedQr {
   system: 'promptpay';
   merchantId: string;
@@ -147,12 +163,35 @@ export function getWalletBalance(token: string, address: string): Promise<Wallet
   );
 }
 
-/** GET /api/v1/transactions */
-export function getTransactions(token: string): Promise<{ transactions: Transaction[] }> {
-  return request<{ transactions: Transaction[] }>('/api/v1/transactions', token, { method: 'GET' });
+/** GET /api/v1/transactions (cursor-paginated). */
+export function getTransactions(
+  token: string,
+  opts: { limit?: number; cursor?: string } = {},
+): Promise<{ transactions: Transaction[]; nextCursor?: string }> {
+  const q = new URLSearchParams();
+  if (opts.limit) q.set('limit', String(opts.limit));
+  if (opts.cursor) q.set('cursor', opts.cursor);
+  const qs = q.toString();
+  return request<{ transactions: Transaction[]; nextCursor?: string }>(
+    `/api/v1/transactions${qs ? `?${qs}` : ''}`,
+    token,
+    { method: 'GET' },
+  );
 }
 
 /** GET /api/v1/transactions/:id */
 export function getTransaction(token: string, id: string): Promise<Transaction> {
   return request<Transaction>(`/api/v1/transactions/${id}`, token, { method: 'GET' });
+}
+
+export interface TransactionStatus2 {
+  id: string;
+  status: TransactionStatus;
+  txHash?: string;
+  failureReason?: string;
+}
+
+/** GET /api/v1/transactions/:id/status — lightweight polling. */
+export function getTransactionStatus(token: string, id: string): Promise<TransactionStatus2> {
+  return request<TransactionStatus2>(`/api/v1/transactions/${id}/status`, token, { method: 'GET' });
 }

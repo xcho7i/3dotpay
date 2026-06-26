@@ -20,17 +20,10 @@ describe('API v1 contracts wiring', () => {
     expect(Array.isArray(res.body.error.details)).toBe(true);
   });
 
-  // /user/profile and /quote are implemented (covered elsewhere); the rest are stubs.
-  it('exposes the remaining contract routes under /api/v1 (auth required)', async () => {
-    expect((await auth(request(app).get('/api/v1/transactions'))).status).toBe(501);
-    expect((await auth(request(app).get('/api/v1/transactions/abc'))).status).toBe(501);
-    expect(
-      (
-        await auth(request(app).post('/api/v1/payment')).send({
-          quoteId: 'q1',
-          txHash: `0x${'a'.repeat(64)}`,
-        })
-      ).status,
-    ).toBe(501);
+  it('rejects an invalid POST /api/v1/payment body with VALIDATION_ERROR', async () => {
+    // Missing quoteId + malformed txHash.
+    const res = await auth(request(app).post('/api/v1/payment')).send({ txHash: 'nope' });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
   });
 });
