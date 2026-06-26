@@ -54,7 +54,7 @@ export async function findTransactionsByStatuses(
 export async function updateTransactionStatus(
   id: string,
   status: string,
-  extra: { failureReason?: string; settlementReference?: string } = {},
+  extra: { failureReason?: string } = {},
 ): Promise<TransactionRecord | null> {
   if (!mongoose.isValidObjectId(id)) return null;
   return TransactionModel.findByIdAndUpdate(id, { $set: { status, ...extra } }, { new: true })

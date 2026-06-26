@@ -18,7 +18,6 @@ const transactionSchema = new Schema(
     settlementAddress: { type: String, required: true },
     txHash: { type: String },
     status: { type: String, required: true, default: 'SUBMITTED' },
-    settlementReference: { type: String },
     failureReason: { type: String },
   },
   { timestamps: true },
@@ -45,7 +44,6 @@ export interface TransactionRecord {
   settlementAddress: string;
   txHash?: string;
   status: string;
-  settlementReference?: string;
   failureReason?: string;
   createdAt: Date;
   updatedAt: Date;

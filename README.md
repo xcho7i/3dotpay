@@ -4,8 +4,12 @@ MVP crypto-to-local-QR payment app. Scan a Thailand **PromptPay** QR, pay with
 **USDC on Base** from a Privy embedded wallet; funds settle directly to a
 settlement partner. 3DotPay handles UX + metadata only — **never** funds or keys.
 
-> Status: base monorepo scaffold. No business logic yet — backend `/health` and a
-> mobile home placeholder. See [docs/architecture.md](docs/architecture.md).
+> Status: **MVP feature-complete with a mock settlement partner.** Full flow
+> works: email login → embedded wallet → scan PromptPay → quote → pay (USDC on
+> Base) → on-chain confirmation → settlement → receipt → history. Settlement is
+> **mocked**; AEON/KSHER is an intentional fail-fast boundary. Not yet verified on
+> a physical device. See [docs/mvp-status.md](docs/mvp-status.md) for the full
+> status, what's mocked, and launch blockers.
 
 ## Layout
 
@@ -13,10 +17,30 @@ settlement partner. 3DotPay handles UX + metadata only — **never** funds or ke
 app/               React Native (Expo SDK 56) + expo-router — mobile
 backend/           Node.js + Express 5 + TypeScript — API
 packages/shared/   zod schemas, types, constants (single source of truth)
-docs/              architecture + API contracts
+docs/              status, runbook, security review, partner contract, architecture
 ```
 
 Managed with **npm workspaces** (single root lockfile).
+
+## What's built
+
+- **Auth**: Privy email OTP → embedded Base wallet; backend verifies Privy tokens.
+- **Deposit**: wallet address + QR + "USDC on Base only" warning.
+- **Pay**: scan PromptPay QR → decode (EMVCo + CRC) → quote (60s TTL) → Privy
+  signs a USDC transfer → backend records `txHash`.
+- **Confirm**: chain monitor validates the transfer + tracks settlement; status
+  endpoint + polling drive the receipt.
+- **History/Receipts**: paginated, ownership-scoped, BaseScan link.
+- **Hardening**: rate limiting, prod env fail-fast, Mongo indexes, log redaction.
+
+## Docs
+
+- [docs/mvp-status.md](docs/mvp-status.md) — final status + run/deploy/build guide
+- [docs/mvp-demo-runbook.md](docs/mvp-demo-runbook.md) — non-engineer QA/demo script
+- [docs/security-review.md](docs/security-review.md) — security checklist + risks
+- [docs/settlement-partner-contract.md](docs/settlement-partner-contract.md) — AEON/KSHER needs
+- [docs/screens.md](docs/screens.md) — screen-by-screen descriptions
+- [docs/architecture.md](docs/architecture.md) · [docs/api-contracts.md](docs/api-contracts.md)
 
 ## Prerequisites
 
@@ -85,9 +109,9 @@ For the backend to verify real Privy tokens, set `PRIVY_APP_SECRET` in
 ## Useful scripts (root)
 
 ```bash
-npm test               # backend tests (vitest)
+npm test               # backend tests (vitest); app tests: npm test -w app
 npm run typecheck      # typecheck shared + api + app
-npm run lint           # eslint
+npm run lint           # eslint (whole repo, must pass clean)
 npm run format         # prettier --write
 ```
 

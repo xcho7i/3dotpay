@@ -3,7 +3,6 @@
   "version": "1.0.0",
   "main": "expo-router/entry",
   "dependencies": {
-    "@3dotpay/shared": "*",
     "@ethersproject/shims": "^5.8.0",
     "@privy-io/expo": "^0.69.4",
     "@privy-io/expo-native-extensions": "^0.0.11",

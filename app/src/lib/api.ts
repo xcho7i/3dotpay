@@ -184,7 +184,7 @@ export function getTransaction(token: string, id: string): Promise<Transaction> 
   return request<Transaction>(`/api/v1/transactions/${id}`, token, { method: 'GET' });
 }
 
-export interface TransactionStatus2 {
+export interface TransactionStatusResult {
   id: string;
   status: TransactionStatus;
   txHash?: string;
@@ -192,6 +192,6 @@ export interface TransactionStatus2 {
 }
 
 /** GET /api/v1/transactions/:id/status — lightweight polling. */
-export function getTransactionStatus(token: string, id: string): Promise<TransactionStatus2> {
-  return request<TransactionStatus2>(`/api/v1/transactions/${id}/status`, token, { method: 'GET' });
+export function getTransactionStatus(token: string, id: string): Promise<TransactionStatusResult> {
+  return request<TransactionStatusResult>(`/api/v1/transactions/${id}/status`, token, { method: 'GET' });
 }

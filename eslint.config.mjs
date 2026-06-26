@@ -17,6 +17,27 @@ export default tseslint.config(
   },
   js.configs.recommended,
   ...tseslint.configs.recommended,
+  {
+    rules: {
+      // Allow intentionally-unused args/vars prefixed with `_` (e.g. interface
+      // conformance in the settlement adapter stubs).
+      '@typescript-eslint/no-unused-vars': [
+        'error',
+        { argsIgnorePattern: '^_', varsIgnorePattern: '^_', caughtErrorsIgnorePattern: '^_' },
+      ],
+    },
+  },
+  {
+    // CommonJS Node config files (babel/metro).
+    files: ['**/*.config.js', '**/babel.config.js', '**/metro.config.js'],
+    languageOptions: {
+      sourceType: 'commonjs',
+      globals: { module: 'readonly', require: 'readonly', __dirname: 'readonly', process: 'readonly' },
+    },
+    rules: {
+      '@typescript-eslint/no-require-imports': 'off',
+    },
+  },
   // Prettier is the source of truth for formatting; disable conflicting rules.
   prettier,
 );

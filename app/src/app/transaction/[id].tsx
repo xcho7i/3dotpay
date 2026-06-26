@@ -5,15 +5,14 @@ import { StyleSheet, Text, View } from 'react-native';
 import { Card } from '../../components/Card';
 import { Header } from '../../components/Header';
 import { Screen } from '../../components/Screen';
-import { EmptyState, ErrorState, LoadingState } from '../../components/StateView';
-import { ApiError, getTransaction, type Transaction } from '../../lib/api';
+import { ErrorState, LoadingState } from '../../components/StateView';
+import { getTransaction, type Transaction } from '../../lib/api';
 import { formatDate, formatUsdc } from '../../lib/format';
 import { useAuth } from '../../lib/privy/hooks';
 import { colors, spacing } from '../../lib/theme';
 
 type State =
   | { status: 'loading' }
-  | { status: 'unavailable' }
   | { status: 'error'; message: string }
   | { status: 'ready'; tx: Transaction };
 
@@ -30,10 +29,6 @@ export default function TransactionDetailScreen() {
       const tx = await getTransaction(token, String(id));
       setState({ status: 'ready', tx });
     } catch (err) {
-      if (err instanceof ApiError && err.code === 'NOT_IMPLEMENTED') {
-        setState({ status: 'unavailable' });
-        return;
-      }
       setState({ status: 'error', message: err instanceof Error ? err.message : String(err) });
     }
   }, [getAccessToken, id]);
@@ -50,12 +45,6 @@ export default function TransactionDetailScreen() {
         <LoadingState />
       ) : state.status === 'error' ? (
         <ErrorState message={state.message} onRetry={load} />
-      ) : state.status === 'unavailable' ? (
-        <EmptyState
-          icon="↺"
-          title="Details coming soon"
-          subtitle={`Transaction ${String(id).slice(0, 10)}… will show full details once payments are live.`}
-        />
       ) : (
         <Card>
           <Row label="Status" value={state.tx.status} />

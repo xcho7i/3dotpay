@@ -30,8 +30,3 @@ export function getSettlementPartner(): SettlementPartner {
   }
   return instance;
 }
-
-/** Test hook: reset the memoized adapter. */
-export function resetSettlementPartner(): void {
-  instance = undefined;
-}

@@ -9,7 +9,6 @@ import {
   StyleSheet,
   Text,
   TextInput,
-  View,
 } from 'react-native';
 
 import { colors } from '../../../lib/theme';
