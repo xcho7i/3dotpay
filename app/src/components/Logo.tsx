@@ -1,19 +1,17 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { Image, StyleSheet, Text, View } from 'react-native';
 
 import { colors } from '../lib/theme';
 
-/** 3DotPay wordmark: three dots (red / white / red) + name. */
+const LOGO = require('../../assets/3dotpay_logo.png');
+
+/** 3DotPay brand: logo mark (PNG) + optional wordmark. */
 export function Logo({ size = 'md', showName = true }: { size?: 'sm' | 'md' | 'lg'; showName?: boolean }) {
-  const dot = size === 'lg' ? 16 : size === 'sm' ? 8 : 12;
+  const mark = size === 'lg' ? 64 : size === 'sm' ? 24 : 36;
   const font = size === 'lg' ? 40 : size === 'sm' ? 18 : 26;
 
   return (
     <View style={styles.row}>
-      <View style={[styles.dots, { gap: dot * 0.6 }]}>
-        <View style={[styles.dot, { width: dot, height: dot, borderRadius: dot / 2, backgroundColor: colors.primary }]} />
-        <View style={[styles.dot, { width: dot, height: dot, borderRadius: dot / 2, backgroundColor: colors.text }]} />
-        <View style={[styles.dot, { width: dot, height: dot, borderRadius: dot / 2, backgroundColor: colors.primary }]} />
-      </View>
+      <Image source={LOGO} style={{ width: mark, height: mark }} resizeMode="contain" />
       {showName ? <Text style={[styles.name, { fontSize: font }]}>3DotPay</Text> : null}
     </View>
   );
@@ -21,7 +19,5 @@ export function Logo({ size = 'md', showName = true }: { size?: 'sm' | 'md' | 'l
 
 const styles = StyleSheet.create({
   row: { flexDirection: 'row', alignItems: 'center', gap: 10 },
-  dots: { flexDirection: 'row', alignItems: 'center' },
-  dot: {},
   name: { color: colors.text, fontWeight: '800', letterSpacing: 0.3 },
 });

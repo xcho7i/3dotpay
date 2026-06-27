@@ -1,5 +1,5 @@
 import { type RequestHandler } from 'express';
-import rateLimit from 'express-rate-limit';
+import rateLimit, { ipKeyGenerator } from 'express-rate-limit';
 import { makeApiError } from '@3dotpay/shared';
 
 import { isTest } from '../config/env.js';
@@ -15,7 +15,9 @@ function perUser(windowMs: number, limit: number): RequestHandler {
     limit,
     standardHeaders: 'draft-7',
     legacyHeaders: false,
-    keyGenerator: (req) => req.auth?.userId ?? req.ip ?? 'anon',
+    // Key by authenticated user; fall back to a normalized IP (the helper
+    // collapses IPv6 addresses to a /64 so they can't bypass the limit).
+    keyGenerator: (req) => req.auth?.userId ?? (req.ip ? ipKeyGenerator(req.ip) : 'anon'),
     handler: (_req, res) =>
       res.status(429).json(makeApiError('RATE_LIMITED', 'Too many requests — please slow down')),
   });
